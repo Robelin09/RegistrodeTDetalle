@@ -36,6 +36,8 @@ namespace RegistrodeTDetalle.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("TicketId");
+
                     b.ToTable("DetallesTickets");
                 });
 
@@ -74,6 +76,20 @@ namespace RegistrodeTDetalle.Api.Migrations
                     b.HasKey("TicketId");
 
                     b.ToTable("Tickets");
+                });
+
+            modelBuilder.Entity("Library.Models.DetallesTickets", b =>
+                {
+                    b.HasOne("Library.Models.Tickets", null)
+                        .WithMany("TicketsDetalle")
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Library.Models.Tickets", b =>
+                {
+                    b.Navigation("TicketsDetalle");
                 });
 #pragma warning restore 612, 618
         }

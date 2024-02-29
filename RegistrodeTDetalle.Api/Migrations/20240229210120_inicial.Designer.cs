@@ -11,7 +11,7 @@ using RegistrodeTDetalle.Api.DAL;
 namespace RegistrodeTDetalle.Api.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20240225230918_inicial")]
+    [Migration("20240229210120_inicial")]
     partial class inicial
     {
         /// <inheritdoc />
@@ -38,6 +38,8 @@ namespace RegistrodeTDetalle.Api.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TicketId");
 
                     b.ToTable("DetallesTickets");
                 });
@@ -77,6 +79,20 @@ namespace RegistrodeTDetalle.Api.Migrations
                     b.HasKey("TicketId");
 
                     b.ToTable("Tickets");
+                });
+
+            modelBuilder.Entity("Library.Models.DetallesTickets", b =>
+                {
+                    b.HasOne("Library.Models.Tickets", null)
+                        .WithMany("TicketsDetalle")
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Library.Models.Tickets", b =>
+                {
+                    b.Navigation("TicketsDetalle");
                 });
 #pragma warning restore 612, 618
         }

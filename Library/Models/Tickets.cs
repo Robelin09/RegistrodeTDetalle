@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 
 namespace Library.Models
 {
@@ -29,5 +31,8 @@ namespace Library.Models
         [Required(ErrorMessage = "La descripción es obligatoria.")]
         [StringLength(500, ErrorMessage = "La descripción no puede exceder los 500 caracteres.")]
         public string? Descripcion { get; set; }
+
+        [ForeignKey("TicketId")]
+        public ICollection<DetallesTickets> DetalleTicket { get; set; } = new List<DetallesTickets>();
     }
 }

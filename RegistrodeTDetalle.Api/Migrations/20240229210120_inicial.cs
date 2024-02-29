@@ -12,21 +12,6 @@ namespace RegistrodeTDetalle.Api.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "DetallesTickets",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    TicketId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Emisor = table.Column<string>(type: "TEXT", nullable: false),
-                    Mensaje = table.Column<string>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_DetallesTickets", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Tickets",
                 columns: table => new
                 {
@@ -44,6 +29,32 @@ namespace RegistrodeTDetalle.Api.Migrations
                 {
                     table.PrimaryKey("PK_Tickets", x => x.TicketId);
                 });
+
+            migrationBuilder.CreateTable(
+                name: "DetallesTickets",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    TicketId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Emisor = table.Column<string>(type: "TEXT", nullable: false),
+                    Mensaje = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DetallesTickets", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DetallesTickets_Tickets_TicketId",
+                        column: x => x.TicketId,
+                        principalTable: "Tickets",
+                        principalColumn: "TicketId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DetallesTickets_TicketId",
+                table: "DetallesTickets",
+                column: "TicketId");
         }
 
         /// <inheritdoc />
