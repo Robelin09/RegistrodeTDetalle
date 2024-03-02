@@ -32,7 +32,8 @@ namespace RegistrodeTDetalle.Api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Tickets>> GetTickets(int id)
         {
-            var tickets = await _context.Tickets.FindAsync(id);
+            var tickets = await _context.Tickets.Include(o => o.DetalleTicket).FirstOrDefaultAsync(o => o.TicketId == id);
+          
 
             if (tickets == null)
             {
