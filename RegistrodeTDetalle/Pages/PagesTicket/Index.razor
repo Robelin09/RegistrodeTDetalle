@@ -45,16 +45,17 @@
         </table>
     </div>
 </div>
+
 @code {
+
 [Parameter]
     public int TicketId { get; set; }
     public Tickets ticket { get; set; } = new Tickets();
     public DetallesTickets detalleTicket { get; set; } = new DetallesTickets();
     public List<Tickets> ListaTickets { get; set; } = new List<Tickets>();
+
     protected override async Task OnInitializedAsync()
     {
         ListaTickets = (await httpClient.GetFromJsonAsync<List<Tickets>>($"api/Tickets"))!;
     }
-
-   
 }

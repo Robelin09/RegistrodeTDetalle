@@ -55,7 +55,7 @@
         </div>
         <div class="card-footer">
             <button type="button" class="btn btn-outline-primary" @onclick="Atras">Volver <i class="bi bi-arrow-return-left" /></button>
-            <button type="submit" class="btn btn-success">Guardar <i class="bi bi-floppy-fill" /></button>
+            <button type="submit" class="btn btn-outline-success">Guardar <i class="bi bi-floppy-fill" /></button>
         </div>
         @*Detalles:*@
         <div class="card card-header mt-5">
@@ -90,7 +90,7 @@
                             <td>@detalle.TicketId</td>
                             <td>@detalle.Emisor</td>
                             <td>@detalle.Mensaje</td>
-                            <td><button type="button" class="btn btn-danger bi bi-trash-fill" @onclick=@(() => RemoverDetalle(detalle))></button></td>
+                            <td><button type="button" class="btn btn-outline-danger bi bi-trash-fill" @onclick=@(() => RemoverDetalle(detalle))></button></td>
                         </tr>
                     }
                 </tbody>
