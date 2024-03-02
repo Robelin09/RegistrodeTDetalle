@@ -1,0 +1,97 @@
+﻿@page "/DeleteTicket"
+@page "/DeleteTicket/{TicketId:int}"
+@inject NavigationManager Navigation
+@inject HttpClient httpClient
+@inject IJSRuntime JSRuntime
+
+<div class="card">
+    <div class="card-header">
+        <h1>¿Desea Eliminar este Ticket?</h1>
+    </div>
+    <div class="card-body">
+        <h5 class="card-title">Detalles de Ticket</h5>
+        <dl class="row">
+
+            <dt class="col-sm-3">TicketId:</dt>
+            <dd class="col-sm-9">@ticket.TicketId</dd>
+
+            <dt class="col-sm-3">Fecha:</dt>
+            <dd class="col-sm-9">@ticket.Fecha</dd>
+
+            <dt class="col-sm-3">ClienteId:</dt>
+            <dd class="col-sm-9">@ticket.ClienteId</dd>
+
+            <dt class="col-sm-3">SistemaId:</dt>
+            <dd class="col-sm-9">@ticket.SistemaId</dd>
+
+            <dt class="col-sm-3">PrioridadId:</dt>
+            <dd class="col-sm-9">@ticket.PrioridadId</dd>
+
+            <dt class="col-sm-3">Solicitado por:</dt>
+            <dd class="col-sm-9">@ticket.SolicitadoPor</dd>
+
+            <dt class="col-sm-3">Asunto:</dt>
+            <dd class="col-sm-9">@ticket.Asunto</dd>
+
+            <dt class="col-sm-3">Descripci&oacuten:</dt>
+            <dd class="col-sm-9">@ticket.Descripcion</dd>
+
+        </dl>
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Emisor</th>
+                    <th>Mensaje</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var detalle in ListaDetalleTicket)
+                {
+                    <tr>
+                        <td>@detalle.Emisor</td>
+                        <td>@detalle.Mensaje</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card-footer">
+        <button type="button" class="btn btn-outline-primary" @onclick="Atras">Volver <i class="bi bi-arrow-return-left" /></button>
+        <button type="button" class="btn btn-outline-danger" @onclick="Eliminar">Eliminar</button>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int TicketId { get; set; }
+    public Tickets ticket { get; set; } = new Tickets();
+    public DetallesTickets detalleTicket { get; set; } = new DetallesTickets();
+    public List<DetallesTickets> ListaDetalleTicket { get; set; } = new List<DetallesTickets>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (TicketId > 0)
+        {
+            var ticketEncontrado = await httpClient.GetFromJsonAsync<Tickets>($"api/Tickets/{TicketId}");
+            if (ticketEncontrado != null)
+            {
+                ticket = ticketEncontrado;
+                ListaDetalleTicket = ticket.DetalleTicket.ToList(); 
+            }
+        }
+    }
+    public async Task Eliminar()
+    {
+        var response = await httpClient.DeleteAsync($"api/Tickets/{ticket.TicketId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            return;
+        }
+        Atras();
+    }
+    void Atras()
+    {
+        Navigation.NavigateTo("/IndexTicket");
+    }
+}
