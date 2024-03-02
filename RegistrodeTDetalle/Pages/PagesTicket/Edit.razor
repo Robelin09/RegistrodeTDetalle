@@ -1,0 +1,195 @@
+﻿@page "/EditTicket"
+@page "/EditTicket/{TicketId:int}"
+@inject NavigationManager Navigation
+@inject HttpClient httpClient
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Editor de Tickets</PageTitle>
+<EditForm Model="ticket" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="card">
+        <div class="card-header">
+            <hi>Editar Ticket</hi>
+        </div>
+        <div class=" card-body">
+            <label>TicketId</label>
+            <div class="input-group">
+                <InputNumber min="0" @bind-Value="ticket.TicketId" class="id-input"></InputNumber>
+            </div>
+            <div>
+                <label>Fecha:</label>
+                <InputDate @bind-Value="ticket.Fecha" class="form-control"></InputDate>
+                <ValidationMessage For="@(() => ticket.Fecha)" />
+            </div>
+
+            <div>
+                <label>ClienteId:</label>
+                <InputNumber @bind-Value="ticket.ClienteId" class="form-control"></InputNumber>
+                <ValidationMessage For="@(() => ticket.ClienteId)" />
+            </div>
+            <div>
+                <label>SistemaId:</label>
+                <InputNumber @bind-Value="ticket.SistemaId" class="form-control"></InputNumber>
+                <ValidationMessage For="@(() => ticket.SistemaId)" />
+            </div>
+            <div>
+                <label>Prioridad Id:</label>
+                <InputNumber @bind-Value="ticket.PrioridadId" class="form-control"></InputNumber>
+                <ValidationMessage For="@(() => ticket.PrioridadId)" />
+            </div>
+            <div>
+                <label>Solicitado por:</label>
+                <InputText @bind-Value="ticket.SolicitadoPor" class="form-control"></InputText>
+                <ValidationMessage For="@(() => ticket.SolicitadoPor)" />
+            </div>
+            <div>
+                <label>Asunto:</label>
+                <InputText @bind-Value="ticket.Asunto" class="form-control"></InputText>
+                <ValidationMessage For="@(() => ticket.Asunto)" />
+            </div>
+            <div>
+                <label>Descripci&oacuten:</label>
+                <InputText @bind-Value="ticket.Descripcion" class="form-control"></InputText>
+                <ValidationMessage For="@(() => ticket.Descripcion)" />
+            </div>
+        </div>
+        <div class="card-footer">
+            <button type="button" class="btn btn-outline-primary" @onclick="Atras">Volver <i class="bi bi-arrow-return-left" /></button>
+            <button type="submit" class="btn btn-outline-success">Guardar <i class="bi bi-floppy-fill" /></button>
+        </div>
+        @*Detalles:*@
+        <div class="card card-header mt-5">
+            <h3>Detalle del ticket</h3>
+            <div>
+                <label class="fw-bold mt-3"> Nombre</label>
+                <InputText @bind-Value="detalleTicket.Emisor" class="form-control"></InputText>
+                <ValidationMessage For="@(() => detalleTicket.Emisor)" />
+            </div>
+            <div>
+                <label class="fw-bold mt-3">Mensaje</label>
+                <InputTextArea @bind-Value="detalleTicket.Mensaje" class="form-control"></InputTextArea>
+                <ValidationMessage For="@(() => detalleTicket.Mensaje)" />
+            </div>
+            <div class="card-footer d-flex justify-content-center">
+                <button type="button" @onclick="AgregarDetalle" class="btn btn-outline-success">Agregar</button>
+            </div>
+            <table class='table table-bordered table-hover'>
+                <thead>
+                    <tr>
+                        <th>TicketId</th>
+                        <th>Emisor</th>
+                        <th>Mensaje</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var detalle in listaDetalles)
+                    {
+                        var ticketEncontrado = BuscarTicket(detalle.TicketId);
+                        <tr>
+                            <td>@detalle.TicketId</td>
+                            <td>@detalle.Emisor</td>
+                            <td>@detalle.Mensaje</td>
+                            <td><button type="button" class="btn btn-outline-danger bi bi-trash-fill" @onclick=@(() => RemoverDetalle(detalle))></button></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int TicketId { get; set; }
+    public string Mensaje = " ";
+    public Tickets ticket { get; set; } = new Tickets();
+    public DetallesTickets detalleTicket { get; set; } = new DetallesTickets();
+    public bool mensajeVacio;
+    public bool emisorVacio;
+
+    public int resultado { get; set; }
+    public string? mensaje { get; set; }
+
+
+
+
+    public List<DetallesTickets> listaDetalles { get; set; } = new List<DetallesTickets>();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (TicketId > 0)
+        {
+            this.ticket.TicketId = TicketId;
+            await Buscar();
+        }
+        ticket.Fecha = DateTime.Now;
+    }
+    private async Task<Tickets> BuscarTicket(int ticketId)
+    {
+        Tickets ticket = new Tickets();
+        var ticketEncontrado = await httpClient.GetFromJsonAsync<Tickets>($"api/Tickets/{ticketId}");
+        if (ticketEncontrado != null)
+            return ticket = ticketEncontrado;
+        return new Tickets();
+    }
+
+    public async Task Buscar()
+    {
+        var ticketIdEncontrado = (await httpClient.GetFromJsonAsync<List<Tickets>>($"api/Tickets"))!
+        .ToList()
+        .Any(t => t.TicketId == ticket.TicketId);
+        if (ticketIdEncontrado)
+        {
+            var ticketEncontrado = await httpClient.GetFromJsonAsync<Tickets>($"api/Tickets/{ticket.TicketId}");
+            if (ticketEncontrado != null)
+            {
+                this.ticket = ticketEncontrado;
+                StateHasChanged();
+            }
+        }
+
+    }
+
+
+    public async Task Guardar()
+    {
+        var response = await httpClient.PostAsJsonAsync($"api/Tickets", ticket);
+        if (!response.IsSuccessStatusCode)
+        {
+            return;
+        }
+        StateHasChanged();
+        Navigation.NavigateTo("/IndexTicket");
+    }
+    void Atras()
+    {
+        Navigation.NavigateTo("/IndexTicket");
+    }
+
+    public bool Validar()
+    {
+        mensajeVacio = string.IsNullOrEmpty(detalleTicket.Mensaje);
+        emisorVacio = string.IsNullOrEmpty(detalleTicket.Emisor);
+        return mensajeVacio || emisorVacio || detalleTicket.Emisor!.Any(Char.IsDigit);
+    }
+
+    public async Task AgregarDetalle()
+    {
+        if (ticket != null)
+        {
+
+            detalleTicket.TicketId = ticket.TicketId;
+            listaDetalles.Add(detalleTicket);
+            ticket.DetalleTicket.Add(detalleTicket);
+            detalleTicket = new DetallesTickets();
+        }
+    }
+
+    public async Task RemoverDetalle(DetallesTickets detalle)
+    {
+        detalleTicket = detalle;
+        listaDetalles.Remove(detalle);
+    }
+}
